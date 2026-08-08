@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>AR 3 Videos</title>
+
+  <!-- A-Frame -->
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+
+  <!-- MindAR -->
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+</head>
+
+
+<body>
+
+  <!-- =========================
+       TAP TO PLAY
+       ========================= -->
+
+ <button id="playButton"
+  style="
+  position: fixed;
+  z-index: 9999;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 30px 45px;
+  font-size: 32px;
+  font-weight: bold;
+  background: black;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  display: none;
+">
+  ▶ TAP TO PLAY
+</button>
+
+
+  <!-- =========================
+       AR SCENE
+       ========================= -->
+
+  <a-scene
+    mindar-image="
+      imageTargetSrc: ./targets.mind;
+    "
+    color-space="sRGB"
+    renderer="colorManagement: true"
+    vr-mode-ui="enabled: false"
+    device-orientation-permission-ui="enabled: false">
+
+
+    <!-- =========================
+         VIDEO ASSETS
+         ========================= -->
+
+    <a-assets>
+
+      <!-- 左の動画 -->
+      <video
+        id="videoLeft"
+        src="./japanspa.mp4?v=2"
+        loop
+        muted
+        playsinline
+        webkit-playsinline
+        crossorigin="anonymous">
+      </video>
+
+
+      <!-- 中央の動画 -->
+      <video
+        id="videoCenter"
+        src="./setumei.mp4?v=2"
+        loop
+        muted
+        playsinline
+        webkit-playsinline
+        crossorigin="anonymous">
+      </video>
+
+
+      <!-- 右の動画 -->
+      <video
+        id="videoRight"
+        src="./nightspa.mp4?v=2"
+        loop
+        muted
+        playsinline
+        webkit-playsinline
+        crossorigin="anonymous">
+      </video>
+
+    </a-assets>
+
+
+    <!-- カメラ -->
+    <a-camera
+      position="0 0 0"
+      look-controls="enabled: false">
+    </a-camera>
+
+
+    <!-- =========================
+         1つのMindARターゲット
+         ========================= -->
+
+    <a-entity
+      id="target"
+      mindar-image-target="targetIndex: 0">
+
+
+      <!-- 左 -->
+      <a-video
+        id="videoPlaneLeft"
+        src="#videoLeft"
+        position="-0.75 0 0"
+        width="0.562"
+        height="1"
+        rotation="0 30 0">
+      </a-video>
+
+
+      <!-- 中央 -->
+      <a-video
+        id="videoPlaneCenter"
+        src="#videoCenter"
+        position="0 -0.75 0"
+        width="0.75"
+        height="0.325"
+        rotation="0 0 0">
+      </a-video>
+
+
+      <!-- 右 -->
+      <a-video
+        id="videoPlaneRight"
+        src="#videoRight"
+        position="0.75 0 0"
+        width="0.562"
+        height="1"
+        rotation="0 -30 0">
+      </a-video>
+
+
+    </a-entity>
+
+  </a-scene>
+
+
+  <!-- =========================
+       JavaScript
+       ========================= -->
+
+  <script>
+
+    const playButton = document.getElementById("playButton");
+
+    const videoLeft =
+      document.getElementById("videoLeft");
+
+    const videoCenter =
+      document.getElementById("videoCenter");
+
+    const videoRight =
+      document.getElementById("videoRight");
+
+
+    // =========================
+    // TAP TO PLAY
+    // =========================
+
+    playButton.addEventListener("click", async () => {
+
+  console.log("🟢 ユーザータップ");
+
+  try {
+
+    const playLeft = videoLeft.play();
+    const playCenter = videoCenter.play();
+    const playRight = videoRight.play();
+
+    await Promise.all([
+      playLeft,
+      playCenter,
+      playRight
+    ]);
+
+    console.log("🎬 3動画 play成功");
+
+    playButton.style.display = "none";
+
+  } catch (error) {
+
+    console.error(
+      "❌ 動画再生エラー",
+      error
+    );
+
+  }
+
+});
+
+
+    // =========================
+    // targetFound
+    // =========================
+
+    const target =
+      document.getElementById("target");
+
+
+    target.addEventListener(
+  "targetFound",
+  () => {
+
+    console.log("🎯 targetFound");
+
+    playButton.style.display = "block";
+
+    console.log("▶ TAP TO PLAY表示");
+
+  }
+);
+
+
+    target.addEventListener(
+      "targetLost",
+      () => {
+
+        console.log("❌ targetLost");
+
+      }
+    );
+
+  </script>
+
+</body>
+
+</html>
